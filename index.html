@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>lnwZa Quiz: TPAT3 Sci & Tech</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* === รีเซ็ตและตั้งค่าพื้นฐาน === */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #082f49);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* === เอฟเฟกต์อนุภาคพื้นหลัง === */
+        .particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25);
+            animation: floatParticle linear infinite;
+        }
+        @keyframes floatParticle {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        /* === สโครลบาร์ === */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(30, 41, 59, 0.5); }
+        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 3px; }
+
+        /* === เลย์เอาต์หลัก (รองรับมือถือ) === */
+        .wrap {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .card {
+            width: 100%;
+            max-width: 720px;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 24px 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.2);
+            display: flex;
+            flex-direction: column;
+            max-height: 95vh;
+        }
+        @media (min-width: 640px) {
+            .card { padding: 40px; }
+        }
+
+        /* === หน้าจอต่างๆ === */
+        .screen { display: none; width: 100%; animation: fadeIn 0.4s ease; flex-direction: column; }
+        .screen.active { display: flex; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(16px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* === หน้า Start === */
+        .logo-box {
+            display: inline-flex;
+            padding: 18px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.25));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            margin-bottom: 20px;
+            animation: floating 6s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+            100% { transform: translateY(0); }
+        }
+        .logo-box svg { width: 56px; height: 56px; color: #a5b4fc; }
+        h1.title {
+            font-size: clamp(2rem, 8vw, 3.5rem);
+            font-weight: 800;
+            background: linear-gradient(to right, #60a5fa, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0 12px;
+            line-height: 1.1;
+        }
+        .subtitle { color: #cbd5e1; font-size: clamp(0.95rem, 3.5vw, 1.1rem); margin: 0 0 24px; line-height: 1.6; }
+        .badge-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 32px; }
+        .badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(99, 102, 241, 0.18); border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 20px; padding: 6px 14px; font-size: 0.85rem; color: #c7d2fe;
+        }
+        .btn-start {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 16px 36px; background: linear-gradient(to right, #4f46e5, #6366f1);
+            border: none; border-radius: 40px; color: #fff; font-family: 'Prompt', sans-serif;
+            font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.5); width: 100%; max-width: 300px; margin: 0 auto;
+        }
+        .btn-start:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(79, 70, 229, 0.7); }
+
+        /* === หน้า Quiz === */
+        .quiz-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(99, 102, 241, 0.3); gap: 8px;
+        }
+        .quiz-title { font-size: clamp(1.1rem, 4vw, 1.3rem); font-weight: 700; color: #a5b4fc; margin: 0; }
+        .q-counter {
+            background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 20px; padding: 5px 14px; font-size: 0.85rem; font-weight: 600; color: #c7d2fe;
+        }
+        .progress-bar {
+            width: 100%; background: rgba(30, 41, 59, 0.8); border-radius: 99px; height: 8px;
+            margin-bottom: 24px; overflow: hidden; border: 1px solid rgba(71, 85, 105, 0.4);
+        }
+        .progress-fill {
+            height: 100%; border-radius: 99px; background: linear-gradient(to right, #3b82f6, #6366f1);
+            transition: width 0.5s ease; box-shadow: 0 0 8px rgba(99, 102, 241, 0.7);
+        }
+        .q-scroll-area {
+            flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-right: 4px; margin-bottom: 16px;
+        }
+        .q-text { font-size: clamp(1.05rem, 4vw, 1.25rem); font-weight: 500; line-height: 1.6; color: #f1f5f9; margin: 0 0 24px; }
+        .choices { display: flex; flex-direction: column; gap: 12px; padding-bottom: 10px; }
+        .choice-btn {
+            display: flex; align-items: flex-start; gap: 12px; width: 100%; text-align: left;
+            padding: 16px; border-radius: 16px; border: 2px solid rgba(71, 85, 105, 0.45);
+            background: rgba(30, 41, 59, 0.55); color: #cbd5e1; font-family: 'Prompt', sans-serif;
+            font-size: clamp(0.95rem, 3.5vw, 1.05rem); font-weight: 500; cursor: pointer; transition: all 0.25s; line-height: 1.5;
+        }
+        .choice-btn:hover:not(:disabled) { border-color: #6366f1; background: rgba(99, 102, 241, 0.15); transform: translateY(-2px); }
+        .choice-btn.selected {
+            border-color: #4f46e5; background: #3730a3; color: #fff; box-shadow: 0 0 14px rgba(79, 70, 229, 0.45);
+        }
+        .choice-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 28px; height: 28px; border-radius: 50%; background: rgba(79, 70, 229, 0.3);
+            border: 1px solid rgba(99, 102, 241, 0.3); color: #a5b4fc; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+        }
+        .btn-submit {
+            width: 100%; padding: 16px; background: linear-gradient(to right, #4f46e5, #7c3aed);
+            border: none; border-radius: 16px; color: #fff; font-family: 'Prompt', sans-serif;
+            font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.25s; flex-shrink: 0;
+        }
+        .btn-submit:disabled { background: #334155; color: #64748b; cursor: not-allowed; opacity: 0.7; }
+        .btn-submit:not(:disabled):active { transform: scale(0.98); }
+
+        /* === ป๊อปอัป เฉลย (Modal) === */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+            z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .modal-overlay.visible { opacity: 1; pointer-events: all; }
+        .modal-card {
+            background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(99, 102, 241, 0.4);
+            border-radius: 24px; padding: 30px 24px; width: 100%; max-width: 480px;
+            text-align: center; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 50px rgba(79, 70, 229, 0.3); max-height: 90vh; display: flex; flex-direction: column;
+        }
+        .modal-overlay.visible .modal-card { transform: scale(1); }
+        .anim-container {
+            width: 100px; height: 100px; position: relative; display: flex; justify-content: center; align-items: center; margin: 0 auto 16px; flex-shrink: 0;
+        }
+        .modal-result { font-size: clamp(1.8rem, 6vw, 2.2rem); font-weight: 900; margin: 0 0 16px; letter-spacing: 0.02em; }
+        .modal-exp-container {
+            overflow-y: auto; padding: 4px; margin-bottom: 20px;
+        }
+        .modal-exp {
+            background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(71, 85, 105, 0.4);
+            border-radius: 16px; padding: 16px; text-align: left; color: #e2e8f0;
+            font-size: clamp(0.95rem, 3.5vw, 1.05rem); line-height: 1.6; margin: 0;
+        }
+        .modal-correct-ans {
+            background: rgba(220, 38, 38, 0.15); border-left: 4px solid #fb7185;
+            padding: 12px; border-radius: 8px; margin-bottom: 12px;
+        }
+
+        /* === หน้า Summary === */
+        .score-ring {
+            width: clamp(150px, 45vw, 200px); height: clamp(150px, 45vw, 200px);
+            border-radius: 50%; border: 10px solid #4f46e5; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 24px; background: rgba(30, 41, 59, 0.5); box-shadow: 0 0 40px rgba(99, 102, 241, 0.35); position: relative;
+        }
+        .score-ring::after {
+            content: ''; position: absolute; inset: -4px; border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1); animation: pulseRing 2s ease-in-out infinite;
+        }
+        @keyframes pulseRing { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.05); opacity: 0; } }
+        .score-num { font-size: clamp(3rem, 12vw, 4rem); font-weight: 900; color: #fff; }
+        .btn-row { display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 20px; }
+        @media (min-width: 480px) { .btn-row { flex-direction: row; } }
+        .btn-sec, .btn-pri {
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 16px 20px; border-radius: 40px; font-family: 'Prompt', sans-serif;
+            font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-sec { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(99, 102, 241, 0.35); color: #a5b4fc; }
+        .btn-sec:hover { background: rgba(51, 65, 85, 0.8); }
+        .btn-pri { background: #f8fafc; border: none; color: #1e1b4b; box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
+        .btn-pri:hover { background: #e0e7ff; transform: scale(1.02); }
+
+        /* === หน้า History (ประวัติและเฉลย) === */
+        .history-list {
+            display: flex; flex-direction: column; gap: 16px; overflow-y: auto; padding-right: 6px; flex-grow: 1;
+        }
+        .hist-card { background: rgba(30, 41, 59, 0.8); border-radius: 16px; padding: 16px; }
+        .hist-card.correct { border: 1px solid rgba(74, 222, 128, 0.3); }
+        .hist-card.wrong { border: 1px solid rgba(251, 113, 133, 0.3); }
+        .hist-q { font-weight: 600; color: #f1f5f9; margin: 0 0 12px; font-size: 1rem; line-height: 1.6; }
+        .hist-ans {
+            border-radius: 12px; padding: 12px 14px; font-weight: 500; font-size: 0.95rem; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center; gap: 8px; line-height: 1.4;
+        }
+        .hist-ans.correct { background: rgba(20, 83, 45, 0.3); color: #86efac; border: 1px solid rgba(74, 222, 128, 0.2); }
+        .hist-ans.wrong { background: rgba(127, 29, 29, 0.3); color: #fca5a5; border: 1px solid rgba(251, 113, 133, 0.2); }
+        .hist-correct-box {
+            background: rgba(6, 78, 59, 0.3); border: 1px solid rgba(52, 211, 153, 0.3);
+            border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; color: #6ee7b7; font-size: 0.95rem;
+        }
+        .hist-exp {
+            background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px; padding: 14px; color: #cbd5e1; font-size: 0.9rem; line-height: 1.6;
+        }
+
+        /* === Animations สำหรับอธิบาย (ดึงมาจากไฟล์เดิม) === */
+        .wave{position:absolute;width:18px;height:18px;background:#3b82f6;border-radius:50%;animation:wa 2s infinite ease-out}
+        .wave:nth-child(2){animation-delay:.6s}.wave:nth-child(3){animation-delay:1.2s}
+        @keyframes wa{0%{transform:scale(1);opacity:.8}100%{transform:scale(5);opacity:0}}
+        .battery-body{width:50px;height:84px;border:3px solid #fff;border-radius:6px;display:flex;align-items:flex-end;padding:3px;position:relative}
+        .battery-body::before{content:'';position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:16px;height:5px;background:#fff;border-radius:3px 3px 0 0}
+        .battery-fill{width:100%;border-radius:2px;animation:bf 3s infinite}
+        @keyframes bf{0%{height:0%;background:#ef4444}50%{background:#eab308}100%{height:100%;background:#10b981}}
+        .orbit-center{width:26px;height:26px;background:#eab308;border-radius:50%;box-shadow:0 0 12px #eab308}
+        .orbit-path{position:absolute;border:1px dashed rgba(255,255,255,.3);border-radius:50%;animation:sp 4s linear infinite}
+        .orbit-path.rev{animation:spr 3s linear infinite}
+        .satellite{position:absolute;top:-4px;left:40px;width:8px;height:8px;background:#38bdf8;border-radius:50%;box-shadow:0 0 6px #38bdf8}
+        @keyframes sp{100%{transform:rotate(360deg)}}@keyframes spr{100%{transform:rotate(-360deg)}}
+        .node-net{position:relative;width:90px;height:90px}
+        .node{position:absolute;width:11px;height:11px;background:#a855f7;border-radius:50%;box-shadow:0 0 8px #a855f7}
+        .n1{top:10%;left:50%;transform:translateX(-50%);animation:pls 1.5s infinite alternate}
+        .n2{top:70%;left:10%;animation:pls 1.5s infinite alternate .5s}
+        .n3{top:70%;left:80%;animation:pls 1.5s infinite alternate 1s}
+        .nl{position:absolute;background:rgba(168,85,247,.4);transform-origin:0 0}
+        .nl1{top:15%;left:50%;width:2px;height:55px;transform:rotate(40deg)}
+        .nl2{top:15%;left:50%;width:2px;height:55px;transform:rotate(-40deg)}
+        .nl3{top:75%;left:15%;width:70px;height:2px}
+        @keyframes pls{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.5);opacity:1}}
+        .dna-cont{display:flex;flex-direction:column;gap:7px}
+        .dna-row{display:flex;align-items:center;justify-content:center;position:relative;width:56px;height:10px}
+        .dd1,.dd2{position:absolute;width:11px;height:11px;border-radius:50%}
+        .dd1{background:#ef4444;animation:dc 2s infinite ease-in-out}
+        .dd2{background:#3b82f6;animation:dcr 2s infinite ease-in-out}
+        .dl{width:100%;height:2px;background:rgba(255,255,255,.2)}
+        .dna-row:nth-child(2) .dd1,.dna-row:nth-child(2) .dd2{animation-delay:.2s}
+        .dna-row:nth-child(3) .dd1,.dna-row:nth-child(3) .dd2{animation-delay:.4s}
+        .dna-row:nth-child(4) .dd1,.dna-row:nth-child(4) .dd2{animation-delay:.6s}
+        @keyframes dc{0%{left:0;z-index:2;transform:scale(1)}50%{left:44px;z-index:0;transform:scale(.6)}100%{left:0;z-index:2;transform:scale(1)}}
+        @keyframes dcr{0%{left:44px;z-index:0;transform:scale(.6)}50%{left:0;z-index:2;transform:scale(1)}100%{left:44px;z-index:0;transform:scale(.6)}}
+        .pc{position:relative;width:90px;height:90px}
+        .fp1,.fp2{position:absolute;width:18px;height:18px;border-radius:50%;background:#f97316;box-shadow:0 0 12px #f97316;top:36px}
+        .fp1{left:0;animation:fs1 2s infinite ease-in}
+        .fp2{right:0;animation:fs2 2s infinite ease-in}
+        .flash{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:0;height:0;background:#fff;border-radius:50%;opacity:0;animation:ffl 2s infinite}
+        @keyframes fs1{0%{left:0;opacity:1}45%{left:32px;opacity:1}50%{opacity:0}100%{opacity:0;left:0}}
+        @keyframes fs2{0%{right:0;opacity:1}45%{right:32px;opacity:1}50%{opacity:0}100%{opacity:0;right:0}}
+        @keyframes ffl{0%,45%{width:0;height:0;opacity:0}50%{width:56px;height:56px;opacity:1;box-shadow:0 0 36px 16px #fbbf24}100%{width:8px;height:8px;opacity:0}}
+    </style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<div class="wrap">
+    <div class="card">
+        
+        <!-- Screen 1: หน้าเริ่มเกม -->
+        <div class="screen active" id="s-start" style="text-align: center; justify-content: center; flex-grow: 1;">
+            <div>
+                <div class="logo-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <h1 class="title">lnwZa Quiz</h1>
+                <p class="subtitle">ตะลุยโจทย์วิทย์-เทคโนโลยีอัปเดตถึงปี 2026<br>ระดับความยาก TPAT3</p>
+                
+                <div class="badge-row">
+                    <span class="badge">📝 5 ข้อ / ฉบับ</span>
+                    <span class="badge">🔀 สุ่มอัตโนมัติ</span>
+                    <span class="badge">📚 3 ฉบับ</span>
+                </div>
+                
+                <button class="btn-start" onclick="startQuiz()">
+                    เริ่มทำแบบทดสอบ
+                    <svg style="width:20px;height:20px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 2: หน้าคำถาม -->
+        <div class="screen" id="s-quiz" style="height: 100%;">
+            <div class="quiz-header">
+                <p class="quiz-title" id="quiz-title">ฉบับที่ 1</p>
+                <span class="q-counter" id="q-counter">ข้อ 1 / 5</span>
+            </div>
+            
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+            
+            <div class="q-scroll-area">
+                <p id="q-text" class="q-text"></p>
+                <div class="choices" id="choices"></div>
+            </div>
+            
+            <button class="btn-submit" id="btn-submit" disabled onclick="submitAnswer()">ตรวจคำตอบ</button>
+        </div>
+
+        <!-- Screen 3: หน้าสรุปผล -->
+        <div class="screen" id="s-summary" style="text-align: center; justify-content: center; flex-grow: 1;">
+            <h2 style="font-size: clamp(1.8rem, 7vw, 2.5rem); font-weight: 800; background: linear-gradient(to right, #60a5fa, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 10px;">สรุปผลคะแนน</h2>
+            <p style="color: #94a3b8; margin: 0 0 30px; font-size: 1rem;">การทดสอบเสร็จสมบูรณ์</p>
+            
+            <div class="score-ring"><span class="score-num" id="final-score">0/5</span></div>
+            
+            <p id="feedback" style="font-size: clamp(1.1rem, 4vw, 1.4rem); color: #a5b4fc; font-weight: 600; margin: 0 0 30px; padding: 0 10px;"></p>
+            
+            <div class="btn-row">
+                <button class="btn-sec" onclick="showHistory()">📝 ดูประวัติและเฉลย</button>
+                <button class="btn-pri" onclick="resetApp()">🔄 ลองฉบับอื่น</button>
+            </div>
+        </div>
+
+        <!-- Screen 4: หน้าประวัติและเฉลย -->
+        <div class="screen" id="s-history" style="height: 100%;">
+            <div class="quiz-header">
+                <h2 class="quiz-title">วิเคราะห์และเฉลย</h2>
+                <button onclick="backToSummary()" style="background: rgba(30,41,59,0.8); border: 1px solid rgba(71,85,105,0.4); border-radius: 8px; color: #cbd5e1; padding: 6px 12px; font-family: 'Prompt'; cursor: pointer;">ปิด</button>
+            </div>
+            
+            <div class="history-list" id="history-list">
+                <!-- ข้อมูลประวัติจะถูกสร้างที่นี่ -->
+            </div>
+            
+            <button class="btn-submit" style="margin-top: 16px;" onclick="resetApp()">ทำแบบทดสอบใหม่</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal ป๊อปอัปเฉลยทีละข้อ -->
+<div class="modal-overlay" id="modal">
+    <div class="modal-card">
+        <div class="anim-container" id="modal-anim"></div>
+        <h3 class="modal-result" id="modal-result">ถูกต้อง!</h3>
+        
+        <div class="modal-exp-container">
+            <div class="modal-exp" id="modal-exp"></div>
+        </div>
+        
+        <button class="btn-submit" style="background: #4f46e5; border-radius: 12px;" onclick="nextQuestion()">ไปต่อกันเลย →</button>
+    </div>
+</div>
+
+<script>
+// --- สร้างพื้นหลัง ---
+const particlesEl = document.getElementById('particles');
+for(let i=0; i<25; i++){
+    let p = document.createElement('div');
+    p.className = 'particle';
+    let s = Math.random() * 5 + 2;
+    p.style.cssText = `width:${s}px; height:${s}px; left:${Math.random()*100}vw; animation-duration:${Math.random()*10+12}s; animation-delay:${Math.random()*10}s`;
+    particlesEl.appendChild(p);
+}
+
+// --- ฐานข้อมูลข้อสอบ (ปรับปรุงให้ตรงกับขอบเขต TPAT3) ---
+const allSets = [
+    [
+        { q: "ข้อใดคือจุดเด่นสำคัญของแบตเตอรี่แบบ Solid-state ที่คาดว่าจะนำมาใช้ในรถยนต์ไฟฟ้า (EV) แทนที่แบตเตอรี่แบบเดิม?", c: ["ราคาถูกกว่าและผลิตได้เร็วกว่า", "ใช้อิเล็กโทรไลต์แบบของแข็ง ทำให้ปลอดภัยจากไฟไหม้และจุพลังงานได้มากขึ้น", "สามารถชาร์จพลังงานจากแสงอาทิตย์ได้ในตัว", "มีน้ำหนักเบาลง 90% เมื่อเทียบกับแบบเดิม", "ไม่ต้องใช้แร่ลิเธียมในการผลิตเลย"], ans: 1, exp: "Solid-state battery เปลี่ยนอิเล็กโทรไลต์จากของเหลวที่ติดไฟง่าย เป็นของแข็ง (เช่น เซรามิก) ทำให้ลดความร้อน ปลอดภัยขึ้น และมีความหนาแน่นพลังงาน (Energy Density) สูงขึ้น", anim: "battery" },
+        { q: "กล้องโทรทรรศน์อวกาศเจมส์ เว็บบ์ (JWST) ตรวจจับสิ่งใดเป็นหลัก เพื่อวิเคราะห์ชั้นบรรยากาศของดาวเคราะห์นอกระบบสุริยะ (Exoplanet)?", c: ["คลื่นไมโครเวฟพื้นหลัง (CMB)", "รังสีอัลตราไวโอเลต (UV)", "รังสีเอกซ์ (X-ray)", "รังสีอินฟราเรด (Infrared)", "คลื่นวิทยุ (Radio waves)"], ans: 3, exp: "JWST ถูกออกแบบมาให้รับรังสีอินฟราเรดเป็นหลัก ซึ่งสามารถทะลุทะลวงกลุ่มฝุ่นควันในอวกาศได้ดี เพื่อสแกนองค์ประกอบทางเคมีในชั้นบรรยากาศดาวเคราะห์", anim: "orbit" },
+        { q: "เทคโนโลยี CRISPR-Cas9 ถูกนำมาประยุกต์ใช้ในวงการเกษตรกรรมอย่างไรที่ส่งผลกระทบชัดเจนที่สุด?", c: ["สร้างพืชที่สังเคราะห์แสงตอนกลางคืนได้", "ตัดต่อพันธุกรรมให้พืชทนทานต่อสภาพอากาศสุดขั้วและโรคระบาดได้แม่นยำขึ้น", "เปลี่ยนพืชใบเลี้ยงเดี่ยวให้กลายเป็นพืชใบเลี้ยงคู่", "ทำให้พืชเติบโตได้โดยไม่ต้องใช้น้ำเลย", "สร้างพืชที่ปล่อยก๊าซออกซิเจนมากกว่าปกติ 100 เท่า"], ans: 1, exp: "CRISPR-Cas9 เปรียบเสมือนกรรไกรตัดต่อ DNA ที่แม่นยำ ถูกนำมาสร้างสายพันธุ์พืชที่ทนแล้ง ทนน้ำท่วม และต้านทานแมลง เพื่อรับมือกับวิกฤตสภาพภูมิอากาศ", anim: "dna" },
+        // ข้อ 4 อัปเดตใหม่ ให้เป็นความรู้เชิงข่าวสาร AI ที่จับต้องได้
+        { q: "ปรากฏการณ์ 'AI Hallucination' (อาการประสาทหลอนของ AI) ที่มักพบในข่าวการใช้งาน Generative AI เช่น ChatGPT คือข้อใด?", c: ["การที่คอมพิวเตอร์กินไฟมากจนเกิดความร้อนสูง", "การที่ AI สร้างข้อมูลที่ดูสมจริงแต่เป็นข้อมูลที่ผิดหรือไม่เป็นความจริง", "การที่ AI ติดไวรัสคอมพิวเตอร์และทำลายข้อมูล", "การที่ AI ปฏิเสธการตอบคำถามของมนุษย์", "การที่ผู้ใช้งานเกิดอาการเสพติดการใช้ AI"], ans: 1, exp: "AI Hallucination คือการที่โมเดลภาษาขนาดใหญ่ (LLM) พยายามปะติดปะต่อคำสร้างคำตอบที่ดูเหมือนจะถูกต้องและน่าเชื่อถือ แต่แท้จริงแล้วเป็นข้อมูลที่ผิด มั่ว หรือไม่มีอยู่จริง", anim: "network" },
+        { q: "Smart Grid (โครงข่ายไฟฟ้าอัจฉริยะ) แตกต่างจากระบบไฟฟ้าแบบดั้งเดิมอย่างไรในยุคเปลี่ยนผ่านพลังงาน?", c: ["ใช้สายไฟที่ทำจากทองคำเพื่อลดความต้านทาน", "ผลิตกระแสไฟฟ้าจากแรงโน้มถ่วงของโลก", "มีการสื่อสารข้อมูลสองทางระหว่างผู้ผลิตและผู้ใช้ เพื่อบริหารจัดการโหลดพลังงานหมุนเวียน", "ส่งไฟฟ้าแบบไร้สายผ่านชั้นบรรยากาศ", "ตัดการใช้พลังงานจากเชื้อเพลิงฟอสซิลได้ 100% ทันที"], ans: 2, exp: "Smart Grid ใช้เทคโนโลยี IoT สื่อสารข้อมูลสองทาง (Two-way communication) รู้ว่าตอนไหนควรเก็บไฟ หรือจ่ายไฟ ช่วยแก้ปัญหาความไม่แน่นอนของพลังงานหมุนเวียน", anim: "waves" }
+    ],
+    [
+        { q: "แนวคิดพื้นฐานของ Quantum Computing ที่ทำให้สามารถประมวลผลข้อมูลได้เร็วกว่า Supercomputer ทั่วไปมหาศาล คือคุณสมบัติใด?", c: ["ความสามารถในการประมวลผลที่ 0 K (ศูนย์สัมบูรณ์) เท่านั้น", "Superposition (การซ้อนทับสถานะ) และ Entanglement (ความพัวพัน)", "การใช้แสงแทนกระแสไฟฟ้า 100%", "การเพิ่มจำนวนทรานซิสเตอร์ลงในชิปขนาด 1 นาโนเมตร", "การส่งข้อมูลผ่านรูหนอนจิ๋ว"], ans: 1, exp: "คิวบิต (Qubit) สามารถเป็นทั้ง 0 และ 1 พร้อมกันได้ (Superposition) และเชื่อมโยงกันได้ทันที (Entanglement) ทำให้ประมวลผลความน่าจะเป็นทั้งหมดได้พร้อมๆ กัน", anim: "orbit" },
+        { q: "เทคโนโลยีวัคซีน mRNA หลังยุคโควิด-19 ถูกเร่งพัฒนาเพื่อเป้าหมายหลักทางการแพทย์ในเรื่องใด?", c: ["วัคซีนป้องกันโรคอ้วน", "วัคซีนรักษามะเร็งเฉพาะบุคคล (Personalized Cancer Vaccines)", "วัคซีนป้องกันโรคกระดูกพรุน", "วัคซีนย้อนวัยเซลล์ประสาท", "วัคซีนป้องกันพิษสุนัขบ้าแบบกิน"], ans: 1, exp: "เทคโนโลยี mRNA ถูกนำมาพัฒนาต่อยอดเพื่อสอนระบบภูมิคุ้มกันของร่างกายมนุษย์ให้รู้จักและโจมตีเซลล์มะเร็งเฉพาะจุดของผู้ป่วยแต่ละรายอย่างเจาะจง", anim: "dna" },
+        { q: "ดาวเทียมสื่อสารวงโคจรต่ำ (LEO) เช่น Starlink มีข้อได้เปรียบเหนือดาวเทียมค้างฟ้า (GEO) อย่างไร?", c: ["ครอบคลุมพื้นที่ทั่วโลกด้วยดาวเทียมเพียงดวงเดียว", "มีอายุการใช้งานนานกว่า 100 ปี", "มีความหน่วงเวลา (Latency) ต่ำกว่ามาก เพราะอยู่ใกล้โลกกว่า", "ไม่ต้องใช้เสาอากาศรับสัญญาณที่พื้นดิน", "สามารถสะท้อนแสงอาทิตย์มาผลิตไฟฟ้าให้โลกได้"], ans: 2, exp: "ดาวเทียม LEO อยู่สูงจากพื้นโลกเพียง 500-2,000 กม. ทำให้สัญญาณเดินทางสั้นกว่า ความหน่วงเวลา (Ping/Latency) จึงต่ำมาก เหมาะกับการส่งข้อมูลเรียลไทม์", anim: "waves" },
+        { q: "ในปัจจุบันมีการพัฒนาวัสดุชนิดใดเพื่อใช้ดักจับ 'ไมโครพลาสติก' ในแหล่งน้ำได้อย่างมีประสิทธิภาพ?", c: ["แม่เหล็กกำลังสูง (Neodymium)", "นาโนเซลลูโลส หรือ ไฮโดรเจลโครงสร้างรูพรุน", "ตาข่ายที่ทำจากสายใยแก้วนำแสง", "แบคทีเรียที่ตัดต่อพันธุกรรมให้กินพลาสติกเท่านั้น", "ฟองน้ำสังเคราะห์จากปิโตรเลียม"], ans: 1, exp: "วัสดุชีวภาพอย่างเจลนาโนเซลลูโลส หรือวัสดุโครงสร้างรูพรุนระดับนาโน มีประจุไฟฟ้าที่สามารถดูดซับและดักจับอนุภาคไมโครพลาสติกขนาดจิ๋วในน้ำได้", anim: "network" },
+        // ข้อ 5 ปรับคำให้เข้าใจง่ายขึ้น เหมาะกับชีวะพื้นฐาน ม.ปลาย
+        { q: "เทคโนโลยี Brain-Computer Interface (BCI) อย่างเช่น Neuralink อาศัยหลักการใดในร่างกายมนุษย์ในการอ่านคำสั่งจากสมอง?", c: ["ตรวจจับการไหลเวียนของเลือดในสมองด้วยแสงอินฟราเรด", "วัดคลื่นเสียงที่เกิดจากการสั่นของสมอง", "ตรวจจับกระแสไฟฟ้า (Action Potential) ที่สื่อสารกันระหว่างเซลล์ประสาท", "สแกนอุณหภูมิที่เปลี่ยนแปลงเมื่อสมองใช้ความคิด", "ตรวจจับการหลั่งสารโดพามีนในสมองส่วนหน้า"], ans: 2, exp: "เมื่อสมองสั่งการ เซลล์ประสาทจะสื่อสารกันด้วยสัญญาณไฟฟ้าเล็กๆ (Action Potential) ชิป BCI จะอ่านสัญญาณไฟฟ้าเหล่านี้และแปลงเป็นคำสั่งคอมพิวเตอร์", anim: "battery" }
+    ],
+    [
+        { q: "ความสำเร็จครั้งใหญ่ของปฏิกิริยา 'นิวเคลียร์ฟิวชัน' (Nuclear Fusion) ที่ประกาศในช่วงที่ผ่านมา คือเรื่องใดที่ปูทางไปสู่พลังงานสะอาดในอนาคต?", c: ["การสร้างเตาปฏิกรณ์ที่อุณหภูมิติดลบได้สำเร็จ", "การบรรลุ 'Net Energy Gain' (ได้พลังงานออกมามากกว่าที่ใส่เข้าไป)", "การเปลี่ยนยูเรเนียมเป็นทองคำ", "การทำให้ปฏิกิริยาดำเนินต่อไปได้เองเป็นเวลา 1 ปีเต็ม", "การพบธาตุใหม่ที่เกิดจากปฏิกิริยานี้"], ans: 1, exp: "ความสำเร็จล่าสุดคือการทำ Ignition ได้สำเร็จ หมายความว่าพลังงานสุทธิที่ผลิตออกมาจากปฏิกิริยาฟิวชัน มีปริมาณมากกว่าพลังงานเลเซอร์ที่ยิงเพื่อจุดระเบิด", anim: "fusion" },
+        { q: "เซลล์แสงอาทิตย์ชนิด 'เพอรอฟสไกต์ (Perovskite)' เป็นเทคโนโลยีที่ถูกคาดหวังมาแทนที่ซิลิคอนเพราะเหตุใด?", c: ["ทนทานต่อการถูกหินชนได้ดีกว่าแผงทั่วไป", "ผลิตจากพลาสติกรีไซเคิล 100%", "มีน้ำหนักเบา โค้งงอได้ โปร่งแสง และราคาต้นทุนการผลิตต่ำกว่าซิลิคอน", "สามารถผลิตไฟฟ้าจากความร้อนของอากาศได้", "มีอายุการใช้งานนานกว่าซิลิคอน 10 เท่าโดยเสื่อมสภาพ 0%"], ans: 2, exp: "เพอรอฟสไกต์มีคุณสมบัติดูดซับแสงได้ดี สามารถผลิตในรูปแบบฟิล์มบาง โค้งงอได้ และใช้ต้นทุนการผลิตที่ถูกกว่าแผงซิลิคอนแบบดั้งเดิม", anim: "battery" },
+        { q: "ระบบ LIDAR ที่ใช้ในรถยนต์ไร้คนขับ (Autonomous Vehicles) ทำงานโดยใช้หลักการคล้ายคลึงกับอะไรมากที่สุด?", c: ["โซนาร์ (Sonar) ของเรือดำน้ำ แต่ใช้แสงเลเซอร์แทนคลื่นเสียง", "เรดาร์ (Radar) ของเครื่องบิน โดยใช้คลื่นวิทยุความถี่ต่ำ", "กล้องถ่ายภาพความร้อน (Thermal Camera)", "การแทรกสอดของคลื่นไมโครเวฟ", "หลักการสะท้อนกลับหมดของไฟเบอร์ออปติก"], ans: 0, exp: "LIDAR ยิงแสงเลเซอร์ออกไป แล้ววัดระยะเวลาที่แสงสะท้อนกลับมา (Time of Flight) เพื่อสร้างแผนที่ 3 มิติรอบรถ หลักการคล้ายโซนาร์ที่ใช้คลื่นเสียงสะท้อน", anim: "waves" },
+        { q: "เทคโนโลยี Carbon Capture and Storage (CCS) มักจะนำก๊าซคาร์บอนไดออกไซด์ที่ดักจับได้ ไปทำอะไรเพื่อไม่ให้กลับสู่ชั้นบรรยากาศ?", c: ["ปล่อยสู่อวกาศผ่านจรวดขนส่ง", "อัดฉีดลงไปเก็บในชั้นหินใต้ดินลึก หรือแหล่งน้ำมันดิบที่หมดแล้ว", "แปรสภาพเป็นก๊าซออกซิเจนด้วยรังสีแกมมา", "แช่แข็งเป็นน้ำแข็งแห้งและทิ้งลงมหาสมุทร", "ผสมกับน้ำมันเชื้อเพลิงเพื่อเพิ่มประสิทธิภาพ"], ans: 1, exp: "กระบวนการดักจับ CO₂ จะทำให้อยู่ในสถานะของเหลว แล้วอัดฉีดลงไปเก็บอย่างถาวรใต้ดินในโครงสร้างทางธรณีวิทยาที่ปิดทึบเพื่อป้องกันภาวะโลกร้อน", anim: "battery" },
+        // ข้อ 5 อัปเดตใหม่ ให้เป็นประยุกต์ฟิสิกส์วิศวกรรม (ตรงกับแนว TPAT3 คลาสสิก)
+        { q: "เทคโนโลยี 'Hyperloop' ที่ใช้ในการขนส่งมวลชนความเร็วสูง อาศัยหลักการทางฟิสิกส์ข้อใดเป็นหลักเพื่อให้แคปซูลเคลื่อนที่ได้เร็วกว่า 1,000 กม./ชม.?", c: ["การใช้เครื่องยนต์เจ็ทพลังงานนิวเคลียร์", "การใช้ล้ออัลลอยด์น้ำหนักเบาพิเศษวิ่งบนรางเหล็กกล้า", "การลอยตัวด้วยแม่เหล็ก (Maglev) ภายในท่อสุญญากาศเพื่อลดแรงเสียดทานและต้านอากาศ", "การยิงด้วยแรงดันน้ำมหาศาลจากสถานีต้นทาง", "การใช้แรงโน้มถ่วงของโลกช่วยดึงดูดแคปซูล"], ans: 2, exp: "Hyperloop ใช้หลักการ Magnetic Levitation (การลอยตัวด้วยแรงแม่เหล็ก) เพื่อลดแรงเสียดทานจากพื้น และวิ่งอยู่ในท่อที่สูบอากาศออกจนเกือบเป็นสุญญากาศ เพื่อลดแรงต้านของอากาศ", anim: "waves" }
+    ]
+];
+
+// --- ตัวแปรควบคุมเกม ---
+let setIdx = 0, qIdx = 0, score = 0, chosen = null, set = [], answers = [];
+
+// ฟังก์ชันสลับหน้าจอ
+function show(id) {
+    ['s-start', 's-quiz', 's-summary', 's-history'].forEach(s => {
+        document.getElementById(s).classList.remove('active');
+    });
+    document.getElementById(id).classList.add('active');
+}
+
+// เริ่มเกม
+function startQuiz() {
+    setIdx = Math.floor(Math.random() * allSets.length);
+    set = allSets[setIdx];
+    qIdx = 0; score = 0; chosen = null; answers = [];
+    show('s-quiz');
+    renderQ();
+}
+
+// เรนเดอร์คำถาม
+function renderQ() {
+    const q = set[qIdx];
+    chosen = null;
+    document.getElementById('btn-submit').disabled = true;
+    document.getElementById('quiz-title').textContent = `ฉบับที่ ${setIdx + 1}`;
+    document.getElementById('q-counter').textContent = `ข้อ ${qIdx + 1} / 5`;
+    document.getElementById('progress-fill').style.width = `${(qIdx / 5) * 100}%`;
+    document.getElementById('q-text').textContent = q.q;
+    
+    const c = document.getElementById('choices');
+    c.innerHTML = '';
+    
+    q.c.forEach((txt, i) => {
+        const b = document.createElement('button');
+        b.className = 'choice-btn';
+        b.innerHTML = `<span class="choice-num">${i + 1}</span><span>${txt}</span>`;
+        b.onclick = () => {
+            chosen = i;
+            c.querySelectorAll('.choice-btn').forEach(x => x.classList.remove('selected'));
+            b.classList.add('selected');
+            document.getElementById('btn-submit').disabled = false;
+        };
+        c.appendChild(b);
+    });
+}
+
+// ตรวจคำตอบ (แก้ไขส่วนแสดงเฉลย)
+function submitAnswer() {
+    if (chosen === null) return;
+    const q = set[qIdx];
+    const isCorrect = (chosen === q.ans);
+    
+    if (isCorrect) score++;
+    answers.push({ selected: chosen, isCorrect: isCorrect });
+    
+    const mo = document.getElementById('modal');
+    const resultEl = document.getElementById('modal-result');
+    const expEl = document.getElementById('modal-exp');
+    
+    if (isCorrect) {
+        resultEl.textContent = '🎉 ถูกต้อง!';
+        resultEl.style.color = '#4ade80';
+        expEl.innerHTML = `<strong style="color: #60a5fa;">💡 คำอธิบาย:</strong><br>${q.exp}`;
+    } else {
+        resultEl.textContent = '💥 ยังไม่ถูกนะ';
+        resultEl.style.color = '#fb7185';
+        // อัปเดต: บอกข้อที่ถูกต้องอย่างชัดเจนเมื่อตอบผิด
+        expEl.innerHTML = `
+            <div class="modal-correct-ans">
+                <strong>ข้อที่ถูกต้องคือ:</strong><br>${q.c[q.ans]}
+            </div>
+            <strong style="color: #60a5fa;">💡 คำอธิบาย:</strong><br>${q.exp}
+        `;
+    }
+    
+    document.getElementById('modal-anim').innerHTML = getAnim(q.anim);
+    mo.classList.add('visible');
+}
+
+// ไปข้อถัดไป
+function nextQuestion() {
+    document.getElementById('modal').classList.remove('visible');
+    setTimeout(() => {
+        qIdx++;
+        if (qIdx < set.length) {
+            renderQ();
+        } else {
+            showSummary();
+        }
+    }, 300);
+}
+
+// แอนิเมชันในป๊อปอัป
+function getAnim(t) {
+    switch(t){
+        case'waves':return`<div class="wave"></div><div class="wave"></div><div class="wave"></div>`;
+        case'battery':return`<div class="battery-body"><div class="battery-fill"></div></div>`;
+        case'orbit':return`<div class="orbit-center"></div><div class="orbit-path" style="width:90px;height:90px"><div class="satellite"></div></div><div class="orbit-path rev" style="width:62px;height:62px"><div class="satellite" style="background:#ef4444;box-shadow:0 0 6px #ef4444"></div></div>`;
+        case'network':return`<div class="node-net"><div class="nl nl1"></div><div class="nl nl2"></div><div class="nl nl3"></div><div class="node n1"></div><div class="node n2"></div><div class="node n3"></div></div>`;
+        case'dna':return`<div class="dna-cont">${Array(4).fill(`<div class="dna-row"><div class="dl"></div><div class="dd1"></div><div class="dd2"></div></div>`).join('')}</div>`;
+        case'fusion':return`<div class="pc"><div class="fp1"></div><div class="fp2"></div><div class="flash"></div></div>`;
+        default:return`<div class="wave"></div>`;
+    }
+}
+
+// แสดงหน้าสรุปผล
+function showSummary() {
+    document.getElementById('progress-fill').style.width = '100%';
+    show('s-summary');
+    const el = document.getElementById('final-score');
+    el.textContent = `${score}/5`;
+    el.style.color = score === 5 ? '#4ade80' : score >= 3 ? '#facc15' : '#fb7185';
+    document.getElementById('feedback').textContent = score === 5 ? 'ระดับ lnwZa ของจริง! พร้อมลุย TPAT3 🚀' : score >= 3 ? 'ทำได้ดีมาก! ทบทวนอีกนิดก็ Perfect 💡' : 'พยายามต่อไปนะ ความรู้ใหม่ๆ ต้องใช้เวลาเรียนรู้ 📚';
+}
+
+// แสดงหน้าประวัติ (แก้ไขให้เฉลยข้อที่ถูกชัดเจน)
+function showHistory() {
+    show('s-history');
+    const c = document.getElementById('history-list');
+    c.innerHTML = '';
+    
+    answers.forEach((a, i) => {
+        const q = set[i];
+        const d = document.createElement('div');
+        d.className = `hist-card ${a.isCorrect ? 'correct' : 'wrong'}`;
+        
+        // HTML พื้นฐาน
+        let cardHTML = `
+            <p class="hist-q">ข้อ ${i + 1}: ${q.q}</p>
+            <div class="hist-ans ${a.isCorrect ? 'correct' : 'wrong'}">
+                <span>คุณตอบ: ${q.c[a.selected]}</span>
+                <span style="font-size: 1.2rem;">${a.isCorrect ? '✅' : '❌'}</span>
+            </div>
+        `;
+        
+        // อัปเดต: ถ้าตอบผิด ให้แสดงกล่องสีเขียวเฉลยข้อที่ถูก
+        if (!a.isCorrect) {
+            cardHTML += `
+            <div class="hist-correct-box">
+                <strong>💡 ข้อที่ถูกต้อง:</strong> ${q.c[q.ans]}
+            </div>`;
+        }
+        
+        // คำอธิบาย
+        cardHTML += `
+            <div class="hist-exp">
+                <strong style="color:#818cf8; display:block; margin-bottom:4px;">คำอธิบาย:</strong>
+                ${q.exp}
+            </div>
+        `;
+        
+        d.innerHTML = cardHTML;
+        c.appendChild(d);
+    });
+}
+
+function backToSummary() { show('s-summary'); }
+function resetApp() { show('s-start'); }
+
+</script>
+</body>
+</html>
